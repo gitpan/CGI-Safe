@@ -3,3 +3,7 @@ Changes
 MANIFEST
 Makefile.PL
 README
+t/f-admin-interface.t
+t/function-interface.t
+t/oo-admin-interface.t
+t/oo-interface.t

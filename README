@@ -1,7 +1,9 @@
-CGI-Safe version 1.22
+CGI-Safe version 1.24
 =====================
 
-Makes running the CGI environment safer by eliminating dangerous %ENV variables and presetting certain CGI.pm globals.  See POD for complete details and use.
+Makes running the CGI environment safer by eliminating dangerous %ENV
+variables and presetting certain CGI.pm globals.  See POD for complete 
+details and use.
 
 INSTALLATION
 
@@ -20,5 +22,7 @@ This module requires these other modules and libraries:
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2001 by Curtis "Ovid" Poe <poec@yahoo.com>, all rights reserved.  This program is free software; you may redistribute it and/or modify it under the same terms as Perl itself.
+Copyright (C) 2001 by Curtis "Ovid" Poe <poec@yahoo.com>, all rights 
+reserved.  This program is free software; you may redistribute it and/or 
+modify it under the same terms as Perl itself.
 

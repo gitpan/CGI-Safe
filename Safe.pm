@@ -1,7 +1,8 @@
 ################################
 package CGI::Safe;
 ################################
-$VERSION = 1.22;
+$VERSION = 1.24; # Nothing is different from 1.22 except I remembered
+                 # to include the tests
 
 use strict;
 use Carp;

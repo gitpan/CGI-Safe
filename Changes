@@ -4,3 +4,7 @@ Revision history for Perl extension CGI-Safe.
 	- original version; created by h2xs 1.21 with options
 		-AX -n CGI-Safe
 
+
+1.24  Fri Jan 04 13:12:00 2001
+	- Updated.  I didn't include the tests in the manifest,
+          thus, failing to upload them.  How humiliating :)
