@@ -1,32 +1,29 @@
 ################################
 package CGI::Safe;
 ################################
-$VERSION = 1.24; # Nothing is different from 1.22 except I remembered
-                 # to include the tests
+$VERSION = 1.25;
 
 use strict;
 use Carp;
 use CGI;
 use Exporter;
 use vars qw/ @ISA /;
-@ISA   = qw/ CGI /;
+@ISA = qw/ CGI /;
 
 use vars qw/ $shell $path /;
 
-BEGIN
-{
+BEGIN {
+
     # Clean up the environment and establish some defaults
-    $shell = $ENV{ 'SHELL' };
-    $path  = $ENV{ 'PATH' };
-    delete @ENV{ qw/ IFS CDPATH ENV BASH_ENV PATH SHELL / };
-    $CGI::DISABLE_UPLOADS = 1;          # Disable uploads
-    $CGI::POST_MAX        = 512 * 1024; # limit posts to 512K max
+    $shell = $ENV{'SHELL'};
+    $path  = $ENV{'PATH'};
+    delete @ENV{qw/ IFS CDPATH ENV BASH_ENV PATH SHELL /};
+    $CGI::DISABLE_UPLOADS = 1;             # Disable uploads
+    $CGI::POST_MAX        = 512 * 1024;    # limit posts to 512K max
 }
 
-sub import
-{
-    if ( grep { /:(?:standard|cgi)/ } @_ )
-    {
+sub import {
+    if ( grep { /:(?:standard|cgi)/ } @_ ) {
         my $set_sub   = caller(0) . '::set';
         my $shell_sub = caller(0) . '::get_shell';
         my $path_sub  = caller(0) . '::get_path';
@@ -39,16 +36,17 @@ sub import
     }
 
     my $index;
+
     # restore untainted path and shell if the list 'admin' in import list
     my %args = map { $_ => 1 } @_[ 1 .. $#_ ];
 
-    if ( exists $args{ 'admin' } )
-    {
-        # If 'admin' is specified, we'll reset the PATH and SHELL.  These will still
-        # be tainted and require untainting by the CGI program.
-        $ENV{ 'PATH' }  = $path  if defined $path;
-        $ENV{ 'SHELL' } = $shell if defined $shell;
-        delete $args{ 'admin' };
+    if ( exists $args{'admin'} ) {
+
+    # If 'admin' is specified, we'll reset the PATH and SHELL.  These will still
+    # be tainted and require untainting by the CGI program.
+        $ENV{'PATH'}  = $path  if defined $path;
+        $ENV{'SHELL'} = $shell if defined $shell;
+        delete $args{'admin'};
         splice @_, 1, $#_, keys %args;
     }
 
@@ -56,9 +54,8 @@ sub import
     # data is grabbed.  We include this so that people will know that future
     # versions will require 'taint' in the import list to allow their scripts to
     # run with minimal changes
-    if ( exists $args{ 'taint' } )
-    {
-        delete $args{ 'taint' };
+    if ( exists $args{'taint'} ) {
+        delete $args{'taint'};
         splice @_, 1, $#_, keys %args;
     }
 
@@ -66,41 +63,36 @@ sub import
     goto &CGI::import;
 }
 
-sub new
-{
-    my ( $self, %args ) = @_;
-    $CGI::DISABLE_UPLOADS = $args{ 'DISABLE_UPLOADS' } if exists $args{ 'DISABLE_UPLOADS' };
-    $CGI::POST_MAX        = $args{ 'POST_MAX' }        if exists $args{ 'POST_MAX' };
-    $ENV{ 'PATH' }        = $args{ 'PATH' }            if exists $args{ 'PATH' };
-    $ENV{ 'SHELL' }       = $args{ 'SHELL' }           if exists $args{ 'SHELL' };
+sub new {
+    my ( $class, %args ) = @_;
+    $CGI::DISABLE_UPLOADS = $args{'DISABLE_UPLOADS'}
+      if exists $args{'DISABLE_UPLOADS'};
+    $CGI::POST_MAX = $args{'POST_MAX'} if exists $args{'POST_MAX'};
+    $ENV{'PATH'}   = $args{'PATH'}     if exists $args{'PATH'};
+    $ENV{'SHELL'}  = $args{'SHELL'}    if exists $args{'SHELL'};
 
-    return ( exists $args{ 'source' } ) ?
-        CGI::new( $self, $args{ 'source' } ) :
-        CGI::new( $self );
+    return CGI::new( $class,
+        ( exists $args{'source'} ? $args{'source'} : () ) );
 }
 
-sub set
-{
-    my ( $self, %args )  =  CGI::self_or_default( @_ );
-    if ( exists $args{ 'DISABLE_UPLOADS' }
-         and
-         defined $args{ 'DISABLE_UPLOADS' } )
+sub set {
+    my ( $self, %args ) = CGI::self_or_default(@_);
+    if ( exists $args{'DISABLE_UPLOADS'}
+        and defined $args{'DISABLE_UPLOADS'} )
     {
-        $CGI::DISABLE_UPLOADS = $args{ 'DISABLE_UPLOADS' };
+        $CGI::DISABLE_UPLOADS = $args{'DISABLE_UPLOADS'};
     }
-    if ( exists $args{ 'POST_MAX' }
-         and
-         defined $args{ 'POST_MAX' }
-         and
-         $args{ 'POST_MAX' } =~ /^\d+$/ )
+    if (    exists $args{'POST_MAX'}
+        and defined $args{'POST_MAX'}
+        and $args{'POST_MAX'} =~ /^\d+$/ )
     {
-        $CGI::POST_MAX = $args{ 'POST_MAX' };
+        $CGI::POST_MAX = $args{'POST_MAX'};
     }
 }
 
 sub get_path { $path }
 
-sub get_shell { $shell };
+sub get_shell { $shell }
 
 "Ovid";
 
@@ -146,14 +138,44 @@ depending upon the security implications).
 
 =back
 
-Hence, the C<CGI::Safe> module.  It will establish the defaults for those
+Hence, the L<CGI::Safe> module.  It will establish the defaults for those
 variables and require virtually no code changes.  Additionally, it will delete
 I<%ENV> variables listed in C<perlsec> as dangerous.  The I<$ENV{ PATH }> and
 I<$ENV{ SHELL }> are explicitly set in the INIT method to ensure that they are
 not tainted.  These may be overriden by passing named args to the
 C<CGI::Safe>'s constructor or by setting them manually.
 
-=head2 Objects vs. Functions
+=head1 METHODS
+
+=head2 new
+
+  my $cgi = CGI::Safe->new;
+  my $cgi = CGI::Safe->new( %args );
+
+Contructor for a new L<CGI::Safe> object.  See L<USAGE DETAILS> for more
+information about which arguments are accepted and how they are used.
+
+=head2 set
+
+  CGI::Safe->set( DISABLE_UPLOADS => 0, POST_MAX => 1_024 * 1_024 );
+  my $cgi = CGI::Safe->new;
+
+Class method which sets the value for C<DISABLE_UPLOADS> and C<POST_MAX>.
+Calling this method after the constructor is effectively a no-op.
+
+=head2 get_path
+
+ my $path = $cgi->get_path;
+
+Returns the original C<$ENV{'PATH'}> value.  This value is tainted.
+
+=head2 get_shell
+
+ my $path = $cgi->get_path;
+
+Returns the original C<$ENV{'SHELL'}> value.  This value is tainted.
+
+=head1 USAGE DETAILS
 
 Some people prefer the object oriented interface for CGI.pm and others prefer
 the function oriented interface.  Naturally, the C<CGI::Safe> module allows
